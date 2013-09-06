@@ -1,0 +1,36 @@
+<html>
+<head>
+<title> Show the defer </title>
+</head>
+<body>
+<script languange="Javascript">
+
+function TheUI(){
+    this.str = "UI";
+}
+
+TheUI.prototype.abc = function(){
+    alert("I am " + this.str);
+    return this;
+};
+
+TheUI.prototype.setStr = function(str) {
+    this.str = str;
+    return this;
+};
+
+function UI() {
+    var ui = new TheUI();
+    window.setTimeout(function(){
+        ui.abc();
+    }, 0);
+    return ui;
+}
+
+var ui = UI();
+ui.setStr("haah");
+alert("I am alert()");
+
+</script>
+</body>
+</html>
