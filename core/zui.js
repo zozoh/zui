@@ -17,34 +17,29 @@
      * 所有函数的 this 皆为 bind 对象本身
      */
     var BIND_METHODS = {
+        // 修改自身的 option 对象
+        // key : String | Object | function， 如果是 Object 忽略 val
+        // val : 仅当 key 为 String 的时候有效
+        setup : function(key, val) {
+            // 解开这个 key
+            if(typeof key == 'function') {
+                key = key.call(this);
+            }
+            // 带入 ...
+            if(typeof key == 'object') {
+                this.option = $.extend(this.option, key);
+            } else if (typeof key == 'string' && typeof val == 'function') {
+                this.option[key] = val;
+            }
+            return this;
+        },
         // 获取本bind对应的 UI 类型对象
         ui: function() {
             return NutzUI.types[this.typeName];
         },
-        // 根据一个路径来获取相对自己的 bind
-        //  - 绝对路径 "/arena/g0_1"
-        //  - 相对路径 "../g0_1"  
-        //  - 相对自己的子 "./child_gasket/abc" 或 "child_gasket/abc"
+        // 根据一个路径来获取相对自己的 bind 实例
         getBindByPath: function(path) {
-            var nms = path.split(/\//);
-            var bind;
-            for (var i = 0; i < nms.length; i++) {
-                switch (nms[i]) {
-                case '':
-                    bind = $z.ui.getBind();
-                    break;
-                case '.':
-                    bind = bind || this;
-                    break;
-                case '..':
-                    bind = (bind || this).parent();
-                    break;
-                default:
-                    bind = (bind || this).children[nms[i]];
-                }
-                if (!bind) throw 'Invalid bind from "' + this.ID + '" > "' + path + '"';
-            }
-            return bind;
+            return $z.ui.getBindByPath(this, path);
         },
         // 获取本 bind 内部的扩展点的 jq 对象
         gasket: function(name) {
@@ -56,8 +51,8 @@
         },
         // 获取本 bind 的父 bind，如果为根 bind，则返回 null
         parent: function() {
-            var pjq = this.selection.parents('[' + NutzUI.BIND + ']').first();
-            return pjq.size() > 0 ? NutzUI.binds[pjq.attr(NutzUI.BIND)] : null;
+            var pjq = this.selection.parents('[' + NutzUI.BIND_ATTR + ']').first();
+            return pjq.size() > 0 ? NutzUI.binds[pjq.attr(NutzUI.BIND_ATTR)] : null;
         },
         // 获取本 bind 对应的父 uiDef，如果没有，返回 null
         super: function() {
@@ -79,13 +74,94 @@
             // 返回 bind 自身以便链式赋值
             return this;
         },
+        // 当所有配置信息都设置完毕后，本函数被触发
+        // 本函数是又 UiDefine 在 bind 函数退出前，通过 setTimeout 注册的延迟调用函数
+        _before_init: function() {
+            // 如果有 bindID 那么先获取一下 bind，这个函数因为被延迟加载的
+            // 所有可以获取之前得到 bind
+            if(this.args.bindPath) {
+                this.args.bind = $z.ui.getBindByPath(null, this.args.bindPath);
+            }
+
+            // 首先得到选区
+            this.selection = this.args.jq || this.args.bind.selection;
+
+            // 得到已经存在的 bindID
+            var myID = this.selection.attr(NutzUI.BIND_ATTR);
+            var myBind = myID ? NutzUI.binds[myID] : null;
+
+            // 要将当前 bind 嵌入到选区UI的垫圈中
+            if(this.gasketName) {
+                if($z.ui.isBind(myBind)) {
+                    this.selection = myBind.gasket(this.gasketName);
+                } else {
+                    throw 'gasket[' + this.gasketName + '] of "' + myID + '" is invalid!'; 
+                }
+            }
+            // 替换选区
+            if(this.selection.size()==0) {
+                throw 'Nil selection!';
+            }
+            // 重新检查选区的绑定情况
+            myID = this.selection.attr(NutzUI.BIND_ATTR);
+            myBind = myID ? NutzUI.binds[myID] : null;
+
+            // 如果已经有 UI 了，注销掉
+            if($z.ui.isBind(myBind)) {
+                myBind.depose();
+                myBind = null;
+            }
+
+            // 执行绑定
+            this.selection.attr(NutzUI.BIND_ATTR, this.ID);
+
+            // 如果绑定到了 document.body 上，则监听 window.resize
+            if (this.selection[0] == document.body) {
+                // 首先让 body 满屏
+                var sz = $z.sys.winsz();
+                this.selection.css('height', sz.height);
+                // 监听事件
+                window.onresize = function() {
+                    var bindID = $(document.body).attr(NutzUI.BIND_ATTR);
+                    NutzUI.binds[bindID].resize();
+                };
+            }
+
+            // 如果是一个子 bind，那么记录自己到父 bind 中，并重设自己的全路径
+            if (this.gasketName) {
+                var pBind = this.parent();
+                if (pBind) {
+                    pBind.children[this.gasketName] = this;
+                    this.gasketPath = pBind.gasketPath + this.gasketName + '/';
+                }
+            }
+
+            // 有初始化数据，先获取再执行初始化流程
+            var theBind = this;
+            if (typeof theBind.option.data == 'function') {
+                var reData = theBind.option.data.call(theBind, function(reData) {
+                    theBind._after_init(reData);
+                });
+                if (reData) {
+                    theBind._after_init(reData);
+                }
+            }
+            // 没有初始化数据，直接开始自行初始化流程
+            else {
+                theBind._after_init();
+            }
+
+            // 返回
+            return theBind;
+        },
         // 依次触发 on_init -> on_show -> on_resize -> on_listen
-        init: function(data) {
+        _after_init: function(data) {
             // 记录数据
             this.data = data;
 
             // 获得 UI 定义对象
             var oUI = this.ui();
+            var opt = this.option || {};
 
             // 首先，清除选区
             this.selection.undelegate();
@@ -94,8 +170,8 @@
             }
 
             // 开始初始化
-            oUI.on_init.call(this);
-            oUI.on_show.call(this);
+            (opt.on_init || oUI.on_init).call(this);
+            (opt.on_show || oUI.on_show).call(this);
             this.resize();
 
             // 声明式监听事件
@@ -110,10 +186,10 @@
             }
 
             // 自定义监听事件
-            oUI.on_listen.call(this);
+            (opt.on_listen || oUI.on_listen).call(this);
 
             // 初始化完毕，调用 ready
-            oUI.on_ready.call(this);
+            (opt.on_ready || oUI.on_ready).call(this);
 
             // 返回 bind 自身以便链式赋值
             return this;
@@ -152,116 +228,109 @@
      * 所有函数的 this 皆为 uiDef 本身
      */
     var UI_DEF_METHODS = {
-        // 创建一个绑定对象
-        bind: function(bind, gasketName, option) {
-            var selector;
-            var selection;
-            // 如果参数格式为 (selector, opt)
-            if (typeof bind == 'string') {
-                var m = REGEX_UI_SELECTOR.exec(bind);
-                // 如果是 "@bind.ID:gasketName" 格式的字符串
-                if (m) {
-                    selector = bind;
-                    opt = gasketName;
-                    gasketName = m[4];
-                }
-                // 否则就是根控件的绑定方式
-                else {
-                    selector = bind;
-                    opt = gasketName;
-                    gasketName = null;
-                }
-            }
-            // 如果为 (bind, gasketName, option)
-            else if ($z.ui.isBind(bind) && typeof gasketName == 'string') {
-                selector = '@' + bind.ID + ':' + gasketName;
-            }
-            // 如果是jq对象或dom对象
-            else if ($(bind).size() > 0) {
-                selector = bind;
-                opt = gasketName;
-                gasketName = null;
-                selection = $(bind);
-            }
-            // 否则不可接受
-            else {
-                throw 'Wrong arguments when NutzUI.bind(' + bind + ',' + gasketName + ',' + option + ')';
-            }
+        // 创建一个绑定对象，主要准备原始对象并为其分配 ID
+        // 可以接受的调用形式为：
+        //
+        //   bind('body .myarena', {...})
+        //   bind('body .myarena', "gasket", {...})
+        //   bind('@bindID', {...})
+        //   bind('@bindID', "gasket", {...})
+        //   bind('/a/b/c', "gasket", {...})
+        //   bind({..bind..}, "gasket", {...})
+        //   bind( [DOM | jq], {...})
+        //   bind( [DOM | jq], 'gasket', {...})
 
-            // 得到选区对象
-            selection = selection || $z.ui.jq(selector);
-            if (selection.size() == 0) {
-                throw "Empty selection for '" + selector + "'!";
-            }
-            // 得到绑定对象
-            var theBind;
-            var bindID = selection.attr(NutzUI.BIND);
-
-            // 如果如果曾经绑定过，获取原先的绑定对象
-            if (bindID) {
-                theBind = window.NutzUI.binds[bindID];
-                // 如果绑定的是别的 UI 类型，将原先的 bind 去除，以便重新绑定
-                if (theBind.typeName != this.typeName) {
-                    theBind.depose();
-                    theBind = null;
-                }
-            }
+        bind: function(arg0, arg1, arg2) {
             // 创建一个新的
-            if (!theBind) {
-                theBind = {
-                    __nutz_ui_bind__: true,
-                    ID: this.typeName + '_' + (this._insCount++),
-                    typeName: this.typeName,
-                    gasketName: gasketName,
-                    gasketPath: '/',
-                    ao: AO,
-                    selector: selector,
-                    selection: selection,
-                    children: {}
-                };
-                selection.attr(NutzUI.BIND, theBind.ID);
-                window.NutzUI.binds[theBind.ID] = theBind;
-                // 扩展 bind 对象的方法
-                $.extend(theBind, BIND_METHODS, NutzUI(this.typeName).methods);
+            var theBind = {
+                __nutz_ui_bind__: true,
+                args       : {  // 这里面放置分析后的参数
+                    jq    : null,   // 对应的 jq 对象 
+                    bind  : null    // 对应的绑定对象
+                },
+                ID         : this.typeName + '_' + (this._insCount++),
+                typeName   : this.typeName,
+                gasketPath : '/',
+                ao         : AO,       // 网页 load 后已经加载了锚值对象
+                gasketName : null,
+                selector   : null,
+                selection  : null,
+                children   : {}
+            };
+            // 注册到 window 对象中
+            window.NutzUI.binds[theBind.ID] = theBind;
 
-                // 如果绑定到了 document.body 上，则监听 window.resize
-                if (theBind.selection[0] == document.body) {
-                    // 首先让 body 满屏
-                    var sz = $z.sys.winsz();
-                    theBind.selection.css('height', sz.height);
-                    // 监听事件
-                    window.onresize = function() {
-                        var bindID = $(document.body).attr(NutzUI.BIND);
-                        NutzUI('@' + bindID).resize();
-                    };
+            // 然后让我们来分析参数
+            var option;
+            // 如果传入的第一个参数为字符串
+            if(typeof arg0 == "string") {
+                // 采用绑定字符串
+                var m = /^(@)([a-zA-Z0-9._-]+)((:)([a-zA-Z0-9._-]+))?$/.exec(arg0);
+                if (m) {
+                    theBind.selector = arg0;
+                    theBind.args.bind = $z.ui.getBind('@' + m[2]);
+                    if(m[5] && typeof arg1 == 'object') {
+                        theBind.gasketName = m[5];
+                        option = arg1;
+                    } else if (typeof arg1=='string' && typeof arg2=='object') {
+                        theBind.gasketName = arg1;
+                        option = arg2;
+                    } else {
+                        throw 'Wrong UI bind!';
+                    }
+                }
+                // 路径的方式
+                else if($z.str.startsWith(arg0, "/")) {
+                    theBind.selector = arg0;
+                    theBind.args.bindPath = arg0;
+                    theBind.gasketName = arg1;
+                    option = arg2;
+                }
+                // 传入的数字必为普通选择器
+                else {
+                    theBind.selector = arg0;
+                    // 给入了 gasketName
+                    if(typeof arg1 == 'string') {
+                        theBind.gasketName = arg1;
+                        option = arg2;
+                    }
+                    // 没给 gasketName，但是给入了 option
+                    else if(typeof arg1 == 'object') {
+                        option = arg1;
+                    }
+                }
+            }
+            // 如果是 bind 对象
+            else if($z.ui.isBind(arg0)) {
+                theBind.selector = arg0.selector + ':' + arg1;
+                theBind.args.bind = arg0;
+                theBind.gasketName = arg1;
+                option = arg2;
+            }
+            // 否则如果是选择器
+            else if($(arg0).size()>0) {
+                theBind.args.jq = $(arg0);
+                theBind.selector = theBind.args.jq.selector;
+                // 给入了 gasketName
+                if(typeof arg1 == 'string') {
+                    theBind.gasketName = arg1;
+                    option = arg2;
+                }
+                // 没给 gasketName，但是给入了 option
+                else if(typeof arg1 == 'object') {
+                    option = arg1;
                 }
             }
 
-            // 如果是一个子 bind，那么记录自己到父 bind 中，并重设自己的全路径
-            if (gasketName) {
-                var pBind = theBind.parent();
-                if (pBind) {
-                    pBind.children[gasketName] = theBind;
-                    theBind.gasketPath = pBind.gasketPath + gasketName + '/';
-                }
-            }
+            
+            // 扩展 bind 对象的方法
+            $.extend(theBind, BIND_METHODS, NutzUI(this.typeName).methods);
 
             // 加入新的配置对象
             theBind.option = $.extend(true, {}, this.dft_option || {}, option || {});
 
-            // 有初始化数据，先获取再执行初始化流程
-            if (typeof theBind.option.data == 'function') {
-                var reData = theBind.option.data.call(theBind, function(reData) {
-                    theBind.init(reData);
-                });
-                if (reData) {
-                    theBind.init(reData);
-                }
-            }
-            // 没有初始化数据，直接开始自行初始化流程
-            else {
-                theBind.init();
-            }
+            // 延迟执行真正的绑定，以便后续函数有几乎对这个绑定对象进行配置
+            window.setTimeout(function(){theBind._before_init();}, 0);
 
             // 返回
             return theBind;
@@ -289,8 +358,27 @@
                 on_depose: function() {},
                 on_listen: function() {},
                 on_ready: function() {},
-                gasket: function(nm) {
-                    return null;
+                gasket: function(nm) { return null; },
+                setup : function(key, val) {
+                    // 传入的是配置对象
+                    if(typeof key == 'object')
+                        for ( var k in key) {
+                            this._do_setup(k, key[k]);
+                        }
+                    // 传入的是两个值，一个是键，一个 func
+                    else
+                        this._do_setup(key, val);
+                    // 返回定义对象自身，以便链式赋值
+                    return this;
+                },
+                _do_setup : function(k, v) {
+                    if(typeof v == 'function'){
+                        if("gasket" == v
+                            || /^(on_)(init|show|resize|depose|listen|ready)$/.test(k))
+                            this[k] = v;
+                        else
+                            this.methods[k] = v;
+                    }
                 },
                 events: {},
                 methods: {}
@@ -313,7 +401,7 @@
         return uiType;
     }; // 结束 UI 框架的初始化
     // 确保自己内部的数据结构
-    NutzUI.BIND = 'nutz-ui-bind'; // 常量，将一个 bind 对象与 DOM 关联的 jQuery data 名
+    NutzUI.BIND_ATTR = 'nutz-ui-bind'; // 常量，将一个 bind 对象与 DOM 关联的 jQuery data 名
     NutzUI.OPTION = 'nutz-ui-bind-option'; // 常量，将一个 bind 对象的配置对象与 DOM 关联的 jQuery data 名
     NutzUI.version = this.version || _version_;
     NutzUI.binds = this.binds || {};
@@ -345,10 +433,10 @@
          */
         selection: function(selector) {
             var jq = $(selector || document.body);
-            if (jq.attr(NutzUI.BIND)) {
+            if (jq.attr(NutzUI.BIND_ATTR)) {
                 return jq;
             }
-            return jq.parents('[' + NutzUI.BIND + ']').first();
+            return jq.parents('[' + NutzUI.BIND_ATTR + ']').first();
         },
         /*----------------------------------------------------------------------
          * 从任何一个 DOM 或者 jq 对象中获取该对象所属的绑定对象
@@ -356,20 +444,19 @@
          *    如果 selector 以 "/" 开头，则表示一个绑定路径，比如 "/arena/g0_1" 则返回对应的 bind
          */
         getBind: function(selector) {
+            // 得到根绑定
+            if(!selector) {
+                return NutzUI('@' + $(document.body).attr(NutzUI.BIND_ATTR));
+            }
+            // 本身就是绑定
+            if(this.isBind(selector))
+                return selector;
             // 从路径获取
             if (typeof selector == 'string' && $z.str.startsWith(selector, '/')) {
-                var nms = selector.substring(1).split(/[\/.]/);
-                var bind = NutzUtil.ui.getBind();
-                for (var i = 0; i < nms.length; i++) {
-                    if (!bind) {
-                        throw 'Invalid bind path "' + selector + '"!';
-                    }
-                    bind = bind.children[nms[i]];
-                }
-                return bind;
+                return this.getBindByPath(null, selector);
             }
             // DOM 获取
-            var bindID = this.selection(selector).attr(NutzUI.BIND);
+            var bindID = this.selection(selector).attr(NutzUI.BIND_ATTR);
             return NutzUI('@' + bindID);
         },
         /*----------------------------------------------------------------------
@@ -377,6 +464,33 @@
          */
         isBind: function(bind) {
             return bind && bind.__nutz_ui_bind__;
+        },
+        /*----------------------------------------------------------------------
+         * 根据一个绑定路径来获取相对某个绑定对象的另外的绑定对象
+         *  - 绝对路径 "/arena/g0_1"
+         *  - 相对路径 "../g0_1"  
+         *  - 相对自己的子 "./child_gasket/abc" 或 "child_gasket/abc"
+         */
+        getBindByPath: function(bind, path) {
+            var bind = bind || this.getBind();
+            var nms = path.split(/\//);
+            for (var i = 0; i < nms.length; i++) {
+                var ga = $.trim(nms[i]);
+                switch (ga) {
+                case '':
+                    break;
+                case '.':
+                    bind = bind || this;
+                    break;
+                case '..':
+                    bind = (bind || this).parent();
+                    break;
+                default:
+                    bind = (bind || this).children[nms[i]];
+                }
+                if (!bind) throw 'Invalid bind from "' + this.ID + '" > "' + path + '"';
+            }
+            return bind;
         },
         /*----------------------------------------------------------------------
          * 给出一个锚值对象分析的函数，锚值对象被假设为
