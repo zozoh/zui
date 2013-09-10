@@ -1,0 +1,83 @@
+<html>
+<head><title>Test Canvas</title></head>
+<body>
+    <canvas id="myCanvas" style="
+    position:absolute;
+    background-color:rgba(0,0,0,0.6);
+    margin-left:100px;
+    margin-top:30px;
+    zIndex:1000;
+    "
+    width="400" 
+    height="400">
+    </canvas>
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+    <p>
+    This is a Canvas test, I will put a canvas tag over this
+    text. The canvas should be opacity=0.5
+
+
+</body>
+<script language="Javascript">
+window.onload = function(){
+    var mycanvas=document.getElementById("myCanvas");
+    var g2d=mycanvas.getContext('2d');
+    var gr=g2d.createRadialGradient(150,150,0,150,150,150);           
+    gr.addColorStop("0","magenta");
+    gr.addColorStop(".25","blue");
+    gr.addColorStop(".50","green");
+    gr.addColorStop(".75","yellow");
+    gr.addColorStop("1.0","red");                
+    g2d.fillStyle=gr;
+    g2d.fillRect(100,100,200,200);
+
+    g2d.font = 'italic 20px Arial';
+    g2d.fillStyle="#FFF";
+    g2d.textAlign = "right";
+    g2d.textBaseline = "bottom";
+    g2d.fillText("Hello~~~，显示咯 ^_^", 350, 100, 300);
+
+}
+</script>
+</html>
