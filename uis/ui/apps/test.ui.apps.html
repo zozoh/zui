@@ -28,14 +28,16 @@
 <link rel="stylesheet" type="text/css" href="ui.apps.css"/>
 <!--=============================================================-->
 </head>
-<body>
-    Test for <b>"ui.apps"</b> ^_^
+<body style="padding:100px 0 0 100px;">
+    <div style="width:640px;height:320px;" class="putHear">
+        Test for <b>"ui.apps"</b> ^_^
+    </div>
 </body>
 <!--=============================================================-->
 <script language="Javascript">
 $(document.body).ready(function(){
 //----------------------------------------------
-$ui("ui.apps").bind(document.body, {
+$ui("ui.apps").bind('.putHear', {
     className : 'myApps',   
     data : function(){
         return [{

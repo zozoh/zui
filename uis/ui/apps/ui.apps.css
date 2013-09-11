@@ -13,7 +13,7 @@ p {
 }
 body {
   margin: 0;
-  overflow: hidden;
+  overflow: auto;
 }
 .fitparent {
   width: 100%;
@@ -36,5 +36,33 @@ body {
 .ui-apps {
   width: 100%;
   height: 100%;
+}
+.ui-apps-viewport {
+  width: 100%;
+  height: 100%;
+  background: #AAF;
+  overflow: hidden;
   position: relative;
+}
+.ui-apps-viewport .ui-apps-drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.ui-apps-dock {
+  position: fixed;
+  background: #FF0;
+  top: 0;
+  left: 0;
+}
+.ui-apps-dock .ui-apps-dk-items {
+  width: 32px;
+}
+.ui-apps-dock .ui-apps-dk-items img.ui-apps-icon {
+  width: 24px;
+  height: 24px;
+}
+.ui-apps-dock .ui-apps-dk-items .ui-apps-nm {
+  position: absolute;
+  width: 100px;
 }

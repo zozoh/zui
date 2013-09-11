@@ -288,6 +288,7 @@
                 }
                 // 传入的数字必为普通选择器
                 else {
+                    theBind.args.jq = $(arg0);
                     theBind.selector = arg0;
                     // 给入了 gasketName
                     if(typeof arg1 == 'string') {
@@ -460,7 +461,13 @@
             }
             // DOM 获取
             var bindID = this.selection(selector).attr(NutzUI.BIND_ATTR);
-            return NutzUI('@' + bindID);
+            return NutzUI.binds[bindID];
+        },
+        /*----------------------------------------------------------------------
+         * 从一个 DOM 中获取其对应的绑定对象，如果该元素没有绑定实例，返回 undefined
+         */
+        oBind: function(selector) {
+            return NutzUI.binds[$(selector).attr(NutzUI.BIND_ATTR)];
         },
         /*----------------------------------------------------------------------
          * 判断一个 JS 对象是不是 bind 对象

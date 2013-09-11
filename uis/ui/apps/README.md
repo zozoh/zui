@@ -2,7 +2,7 @@
 ====
 > 将一组 UI 组合在一起，提供各个 UI 之间的切换功能。  本 UI 建议直接绑定到 `document.body` 上
 
-# 使用方式
+#### 使用方式
 
 本 UI 通过下面的方法进行初始化
 
@@ -23,17 +23,20 @@
 		}
 	});
 	
-# 对应用UI的要求
+#### 鸭子模型
 
-~ 暂时看不到什么特别的要求 ~
+所有的加入 apps 的 UI 的绑定实例，都必须具备如下方法
+
+	// 重绘制 UI
+	redraw();
 
 
-# DOM 模型
+#### DOM 模型
 
 本UI会创建下面的 DOM 模型:
 
 ![](ui.apps.overview.png)
 
-# 依赖的特殊字符串
+#### 特殊CSS的意义
 
-	ui.apps.more=展开
+* `ui-apps-current` : 附加在 `ui-apps-arena` 上，表示当前的 app

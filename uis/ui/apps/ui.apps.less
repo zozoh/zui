@@ -2,5 +2,19 @@
 
 .ui-apps {
     .fitparent;
-    position : relative;
 }
+
+.ui-apps-viewport { .fitparent;
+    background:#AAF; overflow : hidden; position : relative;
+    .ui-apps-drawer { position : absolute; top : 0; left : 0;}
+}
+
+.ui-apps-dock { 
+    position : fixed; background:#FF0;
+    top : 0; left : 0;
+    .ui-apps-dk-items { width : 32px;
+        img.ui-apps-icon { width : 24px; height : 24px; }
+        .ui-apps-nm { position : absolute; width : 100px; }
+    }
+}
+
