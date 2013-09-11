@@ -71,7 +71,7 @@
         });
     }
 
-    $z.def('ui.masker_upload', function(opt) {
+    $z.def('mask.uploader', function(opt) {
         // 计算宽高
         var sz = $z.sys.winsz();
         var maskerOpt = {
@@ -148,6 +148,6 @@
         };
 
         // 显示 ...
-        $z.ui.masker(maskerOpt);
+        $z.masker(maskerOpt);
     });
 })(window.jQuery, window.NutzUtil);

@@ -1,0 +1,72 @@
+<html>
+<head>
+<title>Test ui.apps</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!--============================================================= jQuery -->
+<script language="Javascript" src="../../../deps/jquery/jquery-1.10.2.min.js"></script>
+<!--============================================================= z -->
+<script language="Javascript" src="../../../core/z.js"></script>
+<script language="Javascript" src="../../../core/z.ajax.js"></script>
+<script language="Javascript" src="../../../core/z.ajax.upload.js"></script>
+<script language="Javascript" src="../../../core/z.be.js"></script>
+<script language="Javascript" src="../../../core/z.json.js"></script>
+<script language="Javascript" src="../../../core/z.keyboard.js"></script>
+<script language="Javascript" src="../../../core/z.log.js"></script>
+<script language="Javascript" src="../../../core/z.mask.uploader.js"></script>
+<script language="Javascript" src="../../../core/z.masker.js"></script>
+<script language="Javascript" src="../../../core/z.obj.js"></script>
+<script language="Javascript" src="../../../core/z.str.js"></script>
+<script language="Javascript" src="../../../core/z.sys.js"></script>
+<script language="Javascript" src="../../../core/z.time.js"></script>
+<script language="Javascript" src="../../../core/z.url.js"></script>
+<!--============================================================= zui -->
+<script language="Javascript" src="../../../core/zui.js"></script>
+<!--============================================================= 测试用通用 UI -->
+<script language="Javascript" src="../../../test/ui/demo/ui.demo.simple.js"></script>
+<!--============================================================= 被测 UI-->
+<script language="Javascript"           src="ui.apps.js"></script>
+<link rel="stylesheet" type="text/css" href="ui.apps.css"/>
+<!--=============================================================-->
+</head>
+<body>
+    Test for <b>"ui.apps"</b> ^_^
+</body>
+<!--=============================================================-->
+<script language="Javascript">
+$(document.body).ready(function(){
+//----------------------------------------------
+$ui("ui.apps").bind(document.body, {
+    className : 'myApps',   
+    data : function(){
+        return [{
+            key  : 'app0',
+            ui   : 'ui.demo.simple',
+            name : '测试应用A',
+            dock : true
+        },{
+           key  : 'app1',
+           ui   : 'ui.demo.simple',
+           name : '测试应用B',
+           dock : true 
+        },{
+           key  : 'app2',
+           ui   : 'ui.demo.simple',
+           name : '测试应用C',
+           dock : true 
+        },{
+           key  : 'app3',
+           ui   : 'ui.demo.simple',
+           name : '测试应用C',
+           dock : true 
+        },{
+           key  : 'app4',
+           ui   : 'ui.demo.simple',
+           name : '测试应用D',
+           dock : true 
+        }];
+    }
+});
+//----------------------------------------------
+});
+</script>
+</html>

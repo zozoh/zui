@@ -20,11 +20,13 @@
         '16': 'shift',
         '18': 'alt'
     };
-    if ($.browser.webkit) {
-        KEYS[os.mac ? '91' : '17'] = 'ctrl';
-    } else {
-        KEYS[os.mac && !$.browser.opera ? '224' : '17'] = 'ctrl';
-    }
+    // TODO 暂时先用 mac 的 webkit
+    KEYS[os.mac ? '91' : '17'] = 'ctrl';
+    // if ($.browser.webkit) {
+    //     KEYS[os.mac ? '91' : '17'] = 'ctrl';
+    // } else {
+    //     KEYS[os.mac && !$.browser.opera ? '224' : '17'] = 'ctrl';
+    // }
     // 开始定义帮助函数集
     $z.def('keyboard', {
         /*

@@ -407,6 +407,9 @@
     NutzUI.binds = this.binds || {};
     NutzUI.types = this.types || {};
 
+    // 添加别名
+    window.$ui = NutzUI;
+
     /*
      * 扩展 $z.ui 的名称空间，增加一些帮助函数
      */
@@ -548,7 +551,13 @@
         uname: function(str) {
             var m = /^([#~]*)(:)([a-zA-Z0-9_-]*)(:)([a-zA-Z0-9_.-]+)$/.exec($.trim(str));
             if (!m) {
-                throw "Uknown uname '" + str + "'!!!";
+                return {
+                    pin : false,
+                    beginGroup : false,
+                    className : '',
+                    name : str,
+                    text : this.msg(str)
+                };
             }
             return {
                 // 是否是要固定显示的字符串
@@ -578,7 +587,7 @@
                 var li = $('#__msg__ .' + key.replace(/[.]/g, '_'));
                 return li.size() > 0 ? $(li[0]).html() : (defval ? defval : key);
             } catch (E) {
-                return defval;
+                return defval || key;
             }
         },
         /*----------------------------------------------------------------------

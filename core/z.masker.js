@@ -88,7 +88,7 @@
             }
         };
     //.......................................... 开始定义
-    $z.def('ui.masker', function(opt) {
+    $z.def('masker', function(opt) {
         // 命令
         if ('close' == opt) {
             do_close(getHelper());

@@ -1,10 +1,13 @@
+/**
+ * 一个简单的测试用 UI
+ */
 (function($, $ui){
 //--------------------------------------------------------------------
 
-$ui('ui.test.a', {
+$ui('ui.demo.simple', {
     keepDom : false,
     on_init : function() {
-        var html = "<h1>I am A</h1>";
+        var html = "<h1>I am Simple Demo</h1>";
         html += '<div class="a-sub"></div>';
         this.selection.html(html);
     },

@@ -33,3 +33,7 @@
 本UI会创建下面的 DOM 模型:
 
 ![](ui.apps.overview.png)
+
+# 依赖的特殊字符串
+
+	ui.apps.more=展开
