@@ -28,8 +28,8 @@
 <link rel="stylesheet" type="text/css" href="ui.apps.css"/>
 <!--=============================================================-->
 </head>
-<body style="padding:100px 0 0 100px;">
-    <div style="width:640px;height:320px;" class="putHear">
+<body dstyle="padding:20% 0 0 20%;">
+    <div style="width:50%;height:50%;" class="putHear">
         Test for <b>"ui.apps"</b> ^_^
     </div>
 </body>
@@ -37,34 +37,40 @@
 <script language="Javascript">
 $(document.body).ready(function(){
 //----------------------------------------------
-$ui("ui.apps").bind('.putHear', {
+$ui("ui.apps").bind(document.body, {
+    keepDom   : false,
     className : 'myApps',   
     data : function(){
         return [{
+            icon : 'png/nutz.png',
             key  : 'app0',
             ui   : 'ui.demo.simple',
-            name : '测试应用A',
+            name : 'Nutzam.com',
             dock : true
         },{
-           key  : 'app1',
-           ui   : 'ui.demo.simple',
-           name : '测试应用B',
-           dock : true 
+            icon : 'png/bean.png',
+            key  : 'app1',
+            ui   : 'ui.demo.simple',
+            name : '基础数据',
+            dock : true 
         },{
-           key  : 'app2',
-           ui   : 'ui.demo.simple',
-           name : '测试应用C',
-           dock : true 
+            icon : 'png/android.png',
+            key  : 'app2',
+            ui   : 'ui.demo.simple',
+            name : '移动客户端',
+            dock : true 
         },{
-           key  : 'app3',
-           ui   : 'ui.demo.simple',
-           name : '测试应用C',
-           dock : true 
+            icon : 'png/folder.png',
+            key  : 'app3',
+            ui   : 'ui.demo.simple',
+            name : '共享文件',
+            dock : true 
         },{
-           key  : 'app4',
-           ui   : 'ui.demo.simple',
-           name : '测试应用D',
-           dock : true 
+            icon : 'png/folder.png',
+            key  : 'app4',
+            ui   : 'ui.demo.simple',
+            name : '上传的文件',
+            dock : true 
         }];
     }
 });

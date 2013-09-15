@@ -13,6 +13,7 @@
 		// 你可以直接给一个 JS 数组，用 function 返回可以动态加载
 		data : function(){
 			return [{
+				icon : 'http://nutzam.com/nutz.png', // 应用的图标
 				key  : 'zfile:34ca31c913210', // app 的唯一键值
 				ui   : 'ui.zfile.browser',    // 应用的 UI 类型
 				name : '素材库',      // app 的显示名称，UName 格式

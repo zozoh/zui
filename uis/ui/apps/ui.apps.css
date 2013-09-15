@@ -15,10 +15,14 @@ body {
   margin: 0;
   overflow: auto;
 }
+/*------------------------------------------------------------------------------------*/
 .fitparent {
   width: 100%;
   height: 100%;
 }
+/*------------------------------------------------------------------------------- 动画 */
+/*--------------------------------------------------------------------------------- 三角形*/
+/*------------------------------------------------------------------------------- 清除浮动*/
 .clear-float {
   content: "";
   display: block;
@@ -27,6 +31,7 @@ body {
   line-height: 0;
   height: 0;
 }
+/*------------------------------------------------------------------------------- 禁止鼠标选择 */
 .disselect {
   -moz-user-select: none;
   -khtml-user-select: none;
@@ -36,33 +41,67 @@ body {
 .ui-apps {
   width: 100%;
   height: 100%;
+  background-color: #AAA;
 }
 .ui-apps-viewport {
   width: 100%;
   height: 100%;
   background: #AAF;
   overflow: hidden;
-  position: relative;
 }
 .ui-apps-viewport .ui-apps-drawer {
-  position: absolute;
+  -moz-transition: top 0.3s ease-out;
+  -webkit-transition: top 0.3s ease-out;
+  -o-transition: top 0.3s ease-out;
+  transition: top 0.3s ease-out;
   top: 0;
   left: 0;
+}
+.ui-apps-viewport .ui-apps-drawer .ui-apps-dri {
+  padding: 1px;
+}
+.ui-apps-viewport .ui-apps-drawer .ui-apps-dri .ui-apps-arena {
+  width: 100%;
+  height: 100%;
 }
 .ui-apps-dock {
-  position: fixed;
-  background: #FF0;
-  top: 0;
-  left: 0;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  width: 64px;
+  text-align: center;
 }
 .ui-apps-dock .ui-apps-dk-items {
+  /*----------------------------------------------------------- 当前的项目 */
+
+  /*----------------------------------------------------------- 鼠标悬停提示 */
+
+}
+.ui-apps-dock .ui-apps-dk-items .ui-apps-dki {
+  padding: 8px;
+  position: relative;
+  cursor: default;
+}
+.ui-apps-dock .ui-apps-dk-items .ui-apps-dki img.ui-apps-icon {
+  -moz-transition: all 0.2s ease-out;
+  -webkit-transition: all 0.2s ease-out;
+  -o-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
   width: 32px;
+  height: 32px;
 }
-.ui-apps-dock .ui-apps-dk-items img.ui-apps-icon {
-  width: 24px;
-  height: 24px;
-}
-.ui-apps-dock .ui-apps-dk-items .ui-apps-nm {
+.ui-apps-dock .ui-apps-dk-items .ui-apps-current:before {
+  content: "";
+  display: block;
   position: absolute;
-  width: 100px;
+  top: 18px;
+  left: 0px;
+  border: 6px solid;
+  border-color: transparent transparent transparent rgba(0, 0, 0, 0.4);
+}
+.ui-apps-dock .ui-apps-dk-items .ui-apps-dki-hover img.ui-apps-icon {
+  width: 48px;
+  height: 48px;
+  margin-left: -7px;
 }

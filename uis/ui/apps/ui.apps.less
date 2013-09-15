@@ -1,20 +1,35 @@
 @import "../ui.less";
 
-.ui-apps {
-    .fitparent;
+.ui-apps { .fitparent; 
+    background-color: #AAA;
 }
 
 .ui-apps-viewport { .fitparent;
-    background:#AAF; overflow : hidden; position : relative;
-    .ui-apps-drawer { position : absolute; top : 0; left : 0;}
+    background:#AAF; overflow: hidden;
+    .ui-apps-drawer { .trans(top 0.3s ease-out); top: 0; left: 0;
+        .ui-apps-dri {padding: 1px;
+            .ui-apps-arena { .fitparent; }
+        }
+    }
 }
 
-.ui-apps-dock { 
-    position : fixed; background:#FF0;
-    top : 0; left : 0;
-    .ui-apps-dk-items { width : 32px;
-        img.ui-apps-icon { width : 24px; height : 24px; }
-        .ui-apps-nm { position : absolute; width : 100px; }
+.ui-apps-dock { .disselect;
+    width: 64px; text-align:center;
+    .ui-apps-dk-items {
+        .ui-apps-dki { padding: 8px; position: relative; cursor: default;
+            img.ui-apps-icon { .trans(all 0.2s ease-out);
+                width: 32px; height: 32px; 
+            }
+        }
+        /*----------------------------------------------------------- 当前的项目 */
+        .ui-apps-current:before { content: ""; display:block; 
+            position:absolute; top: 18px; left: 0px;
+            .triangle(left, 6px, rgba(0,0,0,0.4));
+        }
+        /*----------------------------------------------------------- 鼠标悬停提示 */
+        .ui-apps-dki-hover {
+            img.ui-apps-icon { width: 48px; height: 48px; margin-left: -7px;}
+        }
     }
 }
 
